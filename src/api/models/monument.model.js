@@ -4,7 +4,7 @@ const monumentSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     img: { type: String, required: true, trim: true },
-    country: [{ type: mongoose.Types.ObjectId, ref: "Country" }],
+    country: { type: String, required: true, trim: true },
     constructionYear: { type: Number, required: true },
   },
   {

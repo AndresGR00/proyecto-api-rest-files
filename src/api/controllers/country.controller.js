@@ -6,7 +6,7 @@ const getAllCountries = async (req, res, next) => {
     const allCountries = await Country.find();
     res.status(200).json(allCountries);
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(404).json("Countries not found");
   }
 };
 
