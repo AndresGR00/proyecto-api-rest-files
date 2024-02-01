@@ -21,12 +21,13 @@ const isAuth = async (req, res, next) => {
 const isAdmin = async (req, res, next) => {
   try {
     const token = req.headers.authorization;
+    
 
     if (!token) {
       return res.status(400).json("You are not allowed");
     }
     const fixedToken = token.replace("Bearer ", "");
-    const { id } = verifyJwt(fixedToken);
+    const { id } = verifyToken(fixedToken);
     const user = await User.findById(id);
 
     if (user.rol === "isAdmin") {

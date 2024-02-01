@@ -1,3 +1,4 @@
+const { deleteImg } = require("../../utils/deleteImgs");
 const Monument = require("../models/monument.model");
 
 //Get All Monuments
@@ -20,6 +21,9 @@ const createMonument = async (req, res, next) => {
       country: req.body.country,
       constructionYear: req.body.constructionYear,
     });
+    if (req.files) {
+      newMonument.img = req.files.img[0].path;
+    }
     const savedMonument = await newMonument.save();
     return res.status(201).json(savedMonument);
   } catch (error) {
@@ -32,7 +36,10 @@ const editMonument = async (req, res, next) => {
   try {
     const { id } = req.params;
     const editedMonument = new Monument(req.body);
-    editMonument._id = id;
+    editedMonument._id = id;
+    if (req.files && req.files.img) {
+      editedMonument.img = req.files.img[0].path;
+    }
     const updatedMonument = await Monument.findByIdAndUpdate(
       id,
       editedMonument,
@@ -50,7 +57,8 @@ const editMonument = async (req, res, next) => {
 const deleteMonument = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await Monument.findByIdAndDelete(id);
+    const monumentDeleted = await Monument.findByIdAndDelete(id);
+    deleteImg(monumentDeleted.img);
     return res.status(200).json("Monument deleted");
   } catch (error) {
     return res.status(500).json(error);

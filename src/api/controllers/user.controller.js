@@ -1,4 +1,5 @@
 const { generateSign } = require("../../config/jwt");
+const { deleteImg } = require('../../utils/deleteImgs')
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 
@@ -17,14 +18,17 @@ const createUser = async (req, res, next) => {
   try {
     const newUser = new User({
       email: req.body.email,
-      userName: req.body.username,
+      userName: req.body.userName,
       password: req.body.password,
       rol: req.body.rol,
       profileImg: req.body.profileImg,
-    });
+    });    
     const userDuplicated = await User.findOne({ email: req.body.email });
     if (userDuplicated) {
       return res.status(400).json("This email already exists");
+    }
+    if(req.files){
+      newUser.profileImg = req.files.profileImg[0].path;
     }
     const createNewUser = await newUser.save();
     return res.status(201).json(createNewUser);
@@ -57,7 +61,10 @@ const editUser = async (req, res, next) => {
     const { id } = req.params;
     const editedUser = new User(req.body);
     editedUser._id = id;
-    const updatedUser = await User.findByIdAndUpdate(id, editUser, {
+    if (req.files && req.files.profileImg) {
+      editedUser.profileImg = req.files.profileImg[0].path;
+    }
+    const updatedUser = await User.findByIdAndUpdate(id, editedUser, {
       new: true,
     });
     return res.status(200).json(updatedUser);
@@ -70,7 +77,8 @@ const editUser = async (req, res, next) => {
 const deleteAnUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await User.findByIdAndDelete(id);
+    const deletedUser = await User.findByIdAndDelete(id);
+    deleteImg(deletedUser.profileImg);
     return res.status(200).json("User deleted");
   } catch (error) {
     return next(error);

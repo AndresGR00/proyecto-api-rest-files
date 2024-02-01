@@ -4,7 +4,7 @@ const Country = require("../models/country.model");
 //Get All
 const getAllCountries = async (req, res, next) => {
   try {
-    const allCountries = await Country.find();
+    const allCountries = await Country.find().populate('popularMonuments');
     res.status(200).json(allCountries);
   } catch (error) {
     return res.status(404).json("Countries not found");
@@ -61,8 +61,7 @@ const deleteCountry = async (req, res, next) => {
   try {
     const { id } = req.params;
     const countryDeleted = await Country.findByIdAndDelete(id);
-    console.log(countryDeleted.flag);
-    deleteImg(countryDeleted.flag)
+    deleteImg(countryDeleted.flag);
     return res.status(200).json("Country deleted");
   } catch (error) {
     return res.status(500).json(error);
