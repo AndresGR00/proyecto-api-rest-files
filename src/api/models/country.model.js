@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const countrySchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
-    flag: { type: String, required: true, trim: true },
-    population: { type: Number, required: true,},
-    continent: { type: String, required: true, trim: true },
+    name: { type: String, required: false, trim: true },
+    flag: { type: String, required: false, trim: true },
+    population: { type: Number, required: false,},
+    continent: { type: String, required: false, trim: true },
     popularMonuments: [{ type: mongoose.Types.ObjectId, ref: "Monument" }],
   },
   { timestamps: true, collection: "countries" }

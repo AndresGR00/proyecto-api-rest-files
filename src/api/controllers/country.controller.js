@@ -1,3 +1,4 @@
+const { deleteImg } = require("../../utils/deleteImgs");
 const Country = require("../models/country.model");
 
 //Get All
@@ -11,7 +12,7 @@ const getAllCountries = async (req, res, next) => {
 };
 
 //Post
-const createCountry = async (res, res, next) => {
+const createCountry = async (req, res, next) => {
   try {
     const newCountry = new Country({
       name: req.body.name,
@@ -20,6 +21,9 @@ const createCountry = async (res, res, next) => {
       continent: req.body.continent,
       popularMonuments: req.body.popularMonuments,
     });
+    if (req.files) {
+      newCountry.flag = req.files.flag[0].path;
+    }
     const savedCountry = await newCountry.save();
     return res.status(201).json(savedCountry);
   } catch (error) {
@@ -33,11 +37,16 @@ const editCountry = async (req, res, next) => {
     const { id } = req.params;
     const outdatedCountry = await Country.findById(id);
     const editedCountry = new Country(req.body);
-    editCountry._id = id;
-    editCountry.popularMonuments = [
-      ...outdatedCountry.popularMonuments,
-      req.body.popularMonuments,
-    ];
+    editedCountry._id = id;
+    if(req.body.popularMonuments){
+      editedCountry.popularMonuments = [
+        ...outdatedCountry.popularMonuments,
+        req.body.popularMonuments,
+      ];
+    }
+    if (req.files && req.files.flag) {
+      editedCountry.flag = req.files.flag[0].path;
+    }
     const updatedCountry = await Country.findByIdAndUpdate(id, editedCountry, {
       new: true,
     });
@@ -51,7 +60,9 @@ const editCountry = async (req, res, next) => {
 const deleteCountry = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await Country.findByIdAndDelete(id);
+    const countryDeleted = await Country.findByIdAndDelete(id);
+    console.log(countryDeleted.flag);
+    deleteImg(countryDeleted.flag)
     return res.status(200).json("Country deleted");
   } catch (error) {
     return res.status(500).json(error);
